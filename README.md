@@ -25,3 +25,6 @@ account_id = "<Cloudflare 账号ID>"
 workers_dev = true
 compatibility_date = "2025-05-07"
 ```
+
+### 预览地址
+https://password-generator.292826.xyz
