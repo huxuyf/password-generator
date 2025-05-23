@@ -121,6 +121,33 @@ const html = `<!DOCTYPE html>
       padding-bottom: 0;
     }
     
+    .settings-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    
+    .settings-content.show {
+      max-height: 500px;
+    }
+    
+    .settings-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      padding: 5px 0;
+    }
+    
+    .settings-toggle {
+      color: var(--secondary-color);
+      transition: transform 0.3s ease;
+    }
+    
+    .settings-toggle.rotate {
+      transform: rotate(180deg);
+    }
+    
     h2 {
       font-size: 1.3rem;
       margin-bottom: 20px;
@@ -466,42 +493,47 @@ const html = `<!DOCTYPE html>
   
   <div class="container">
     <div class="section">
-      <h2><i class="fas fa-cog"></i> 设置</h2>
-      
-      <div class="form-group">
-        <label for="length">密码长度:</label>
-        <div class="slider-container">
-          <input type="range" id="length" min="6" max="32" value="8">
-          <span class="length-value" id="lengthValue">8</span>
-        </div>
+      <div class="settings-header" id="settingsHeader">
+        <h2><i class="fas fa-cog"></i> 设置</h2>
+        <i class="fas fa-chevron-down settings-toggle" id="settingsToggle"></i>
       </div>
       
-      <div class="form-group">
-        <label>所含字符:</label>
-        <div class="char-settings-container">
-          <div class="checkbox-container">
-            <div class="checkbox-group">
-              <div class="checkbox-item">
-                <input type="checkbox" id="lowercase" checked>
-                <label for="lowercase">小写</label>
-              </div>
-              
-              <div class="checkbox-item">
-                <input type="checkbox" id="uppercase" checked>
-                <label for="uppercase">大写</label>
-              </div>
-              
-              <div class="checkbox-item">
-                <input type="checkbox" id="numbers" checked>
-                <label for="numbers">数字</label>
-              </div>
-              
-              <div class="checkbox-item">
-                <input type="checkbox" id="symbols">
-                <label for="symbols">!@#$</label>
-              </div>
-              <div class="checkbox-item">
-                <input type="text" id="customSymbols" value="!@#$%^&" style="display: none;">
+      <div class="settings-content" id="settingsContent">
+        <div class="form-group">
+          <label for="length">密码长度:</label>
+          <div class="slider-container">
+            <input type="range" id="length" min="6" max="32" value="8">
+            <span class="length-value" id="lengthValue">8</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>所含字符:</label>
+          <div class="char-settings-container">
+            <div class="checkbox-container">
+              <div class="checkbox-group">
+                <div class="checkbox-item">
+                  <input type="checkbox" id="lowercase" checked>
+                  <label for="lowercase">小写</label>
+                </div>
+                
+                <div class="checkbox-item">
+                  <input type="checkbox" id="uppercase" checked>
+                  <label for="uppercase">大写</label>
+                </div>
+                
+                <div class="checkbox-item">
+                  <input type="checkbox" id="numbers" checked>
+                  <label for="numbers">数字</label>
+                </div>
+                
+                <div class="checkbox-item">
+                  <input type="checkbox" id="symbols">
+                  <label for="symbols">!@#$</label>
+                </div>
+                <div class="checkbox-item">
+                  <input type="text" id="customSymbols" value="!@#$%^&" style="display: none;">
+                </div>
               </div>
             </div>
           </div>
@@ -549,6 +581,9 @@ const html = `<!DOCTYPE html>
     const toast = document.getElementById('toast');
     const strengthMeter = document.getElementById('strengthMeter');
     const strengthText = document.getElementById('strengthText');
+    const settingsHeader = document.getElementById('settingsHeader');
+    const settingsContent = document.getElementById('settingsContent');
+    const settingsToggle = document.getElementById('settingsToggle');
     
     // 更新密码长度显示
     lengthSlider.addEventListener('input', () => {
@@ -688,6 +723,12 @@ const html = `<!DOCTYPE html>
     
     // 页面加载时生成一个初始密码
     window.addEventListener('load', generatePassword);
+    
+    // 设置区域的展开/折叠功能
+    settingsHeader.addEventListener('click', () => {
+      settingsContent.classList.toggle('show');
+      settingsToggle.classList.toggle('rotate');
+    });
   </script>
 </body>
 </html>`;
