@@ -98,6 +98,48 @@ const html = `<!DOCTYPE html>
       overflow: hidden;
     }
     
+    .settings-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 112, 243, 0.2);
+      color: var(--secondary-color);
+      border: 1px solid var(--border-color);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+    
+    .settings-btn:hover {
+      background: rgba(0, 112, 243, 0.4);
+      transform: rotate(30deg);
+    }
+    
+    .settings-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(15, 22, 36, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      border-top: 1px solid var(--border-color);
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+      z-index: 100;
+      box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .settings-panel.show {
+      transform: translateY(0);
+    }
+    
     .container::before {
       content: "";
       position: absolute;
@@ -492,58 +534,13 @@ const html = `<!DOCTYPE html>
   <h1>密码生成器</h1>
   
   <div class="container">
-    <div class="section">
-      <div class="settings-header" id="settingsHeader">
-        <h2><i class="fas fa-cog"></i> 设置</h2>
-        <i class="fas fa-chevron-down settings-toggle" id="settingsToggle"></i>
-      </div>
-      
-      <div class="settings-content" id="settingsContent">
-        <div class="form-group">
-          <label for="length">密码长度:</label>
-          <div class="slider-container">
-            <input type="range" id="length" min="6" max="32" value="8">
-            <span class="length-value" id="lengthValue">8</span>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label>所含字符:</label>
-          <div class="char-settings-container">
-            <div class="checkbox-container">
-              <div class="checkbox-group">
-                <div class="checkbox-item">
-                  <input type="checkbox" id="lowercase" checked>
-                  <label for="lowercase">小写</label>
-                </div>
-                
-                <div class="checkbox-item">
-                  <input type="checkbox" id="uppercase" checked>
-                  <label for="uppercase">大写</label>
-                </div>
-                
-                <div class="checkbox-item">
-                  <input type="checkbox" id="numbers" checked>
-                  <label for="numbers">数字</label>
-                </div>
-                
-                <div class="checkbox-item">
-                  <input type="checkbox" id="symbols">
-                  <label for="symbols">!@#$</label>
-                </div>
-                <div class="checkbox-item">
-                  <input type="text" id="customSymbols" value="!@#$%^&" style="display: none;">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- 设置按钮 -->
+    <div class="settings-btn" id="settingsBtn">
+      <i class="fas fa-cog"></i>
     </div>
     
     <div class="section">
-      <h2><i class="fas fa-key"></i> 生成的密码</h2>
-      
+      <!-- 密码显示区域，去掉标题和钥匙图标 -->
       <div class="password-display">
         <input type="text" id="password" readonly>
         <div class="strength-meter">
@@ -556,18 +553,66 @@ const html = `<!DOCTYPE html>
         <button class="btn" id="copyBtn">
           <i class="fas fa-copy"></i> 复制
         </button>
-        
         <button class="btn" id="generateBtn">
-          <i class="fas fa-sync-alt"></i> 更新
+          <i class="fas fa-sync-alt"></i> 生成
         </button>
       </div>
     </div>
   </div>
   
-  <div class="toast" id="toast"><i class="fas fa-check-circle"></i> 已复制到剪贴板</div>
+  <!-- 底部设置面板 -->
+  <div class="settings-panel" id="settingsPanel">
+    <div class="form-group">
+      <label for="length">密码长度:</label>
+      <div class="slider-container">
+        <input type="range" id="length" min="6" max="32" value="8">
+        <span class="length-value" id="lengthValue">8</span>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label>所含字符:</label>
+      <div class="char-settings-container">
+        <div class="checkbox-container">
+          <div class="checkbox-group">
+            <div class="checkbox-item">
+              <input type="checkbox" id="lowercase" checked>
+              <label for="lowercase">小写</label>
+            </div>
+            
+            <div class="checkbox-item">
+              <input type="checkbox" id="uppercase" checked>
+              <label for="uppercase">大写</label>
+            </div>
+            
+            <div class="checkbox-item">
+              <input type="checkbox" id="numbers" checked>
+              <label for="numbers">数字</label>
+            </div>
+            
+            <div class="checkbox-item">
+              <input type="checkbox" id="symbols">
+              <label for="symbols">!@#$</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="text" id="customSymbols" value="!@#$%^&" style="display: none;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <button class="btn" id="applySettingsBtn">
+      <i class="fas fa-sync-alt"></i> 更新
+    </button>
+  </div>
+  
+  <div class="toast" id="toast">
+    <i class="fas fa-check-circle"></i> 密码已复制到剪贴板
+  </div>
   
   <script>
-    // DOM 元素
+    // 获取DOM元素
     const lengthSlider = document.getElementById('length');
     const lengthValue = document.getElementById('lengthValue');
     const lowercaseCheckbox = document.getElementById('lowercase');
@@ -581,9 +626,9 @@ const html = `<!DOCTYPE html>
     const toast = document.getElementById('toast');
     const strengthMeter = document.getElementById('strengthMeter');
     const strengthText = document.getElementById('strengthText');
-    const settingsHeader = document.getElementById('settingsHeader');
-    const settingsContent = document.getElementById('settingsContent');
-    const settingsToggle = document.getElementById('settingsToggle');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const applySettingsBtn = document.getElementById('applySettingsBtn');
     
     // 更新密码长度显示
     lengthSlider.addEventListener('input', () => {
@@ -724,10 +769,15 @@ const html = `<!DOCTYPE html>
     // 页面加载时生成一个初始密码
     window.addEventListener('load', generatePassword);
     
-    // 设置区域的展开/折叠功能
-    settingsHeader.addEventListener('click', () => {
-      settingsContent.classList.toggle('show');
-      settingsToggle.classList.toggle('rotate');
+    // 设置按钮点击事件 - 显示/隐藏底部设置面板
+    settingsBtn.addEventListener('click', () => {
+      settingsPanel.classList.toggle('show');
+    });
+    
+    // 应用设置按钮点击事件
+    applySettingsBtn.addEventListener('click', () => {
+      generatePassword();
+      settingsPanel.classList.remove('show');
     });
   </script>
 </body>
